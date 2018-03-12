@@ -1,6 +1,6 @@
 import {join, parse, normalize, sep} from 'path'
-import {promisify} from 'util'
 import fs from 'fs'
+import promisify from './lib/promisify'
 
 const exists = promisify(fs.exists)
 
