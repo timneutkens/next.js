@@ -1,6 +1,6 @@
 import { join } from 'path'
-import {promisify} from 'util'
 import fs from 'fs'
+import promisify from '../../lib/promisify'
 
 const unlink = promisify(fs.unlink)
 
