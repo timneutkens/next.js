@@ -306,7 +306,7 @@ export default async function exportPage({
       }
 
       if (inAmpMode && !curRenderOpts.ampSkipValidation) {
-        if (!results.ssgNotFound) {
+        if (!results.ssgNotFound && html) {
           await validateAmp(html, path, curRenderOpts.ampValidatorPath)
         }
       } else if (hybridAmp) {
@@ -331,7 +331,7 @@ export default async function exportPage({
             curRenderOpts as any
           )
 
-          if (!curRenderOpts.ampSkipValidation) {
+          if (!curRenderOpts.ampSkipValidation && ampHtml) {
             await validateAmp(ampHtml, page + '?amp=1')
           }
           await promises.mkdir(ampBaseDir, { recursive: true })
