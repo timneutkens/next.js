@@ -12,7 +12,7 @@ import { loadEnvConfig } from '@next/env'
 
 export { DomainLocales, NextConfig, normalizeConfig } from './config-shared'
 
-const targets = ['server', 'serverless', 'experimental-serverless-trace']
+const targets = ['server']
 
 const experimentalWarning = execOnce(() => {
   Log.warn(chalk.bold('You have enabled experimental feature(s).'))
@@ -481,10 +481,4 @@ export default async function loadConfig(
   }
 
   return defaultConfig
-}
-
-export function isTargetLikeServerless(target: string) {
-  const isServerless = target === 'serverless'
-  const isServerlessTrace = target === 'experimental-serverless-trace'
-  return isServerless || isServerlessTrace
 }

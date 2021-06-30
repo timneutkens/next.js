@@ -55,31 +55,11 @@ export async function loadDefaultErrorComponents(distDir: string) {
 
 export async function loadComponents(
   distDir: string,
-  pathname: string,
-  serverless: boolean
+  pathname: string
 ): Promise<LoadComponentsReturnType> {
-  if (serverless) {
-    const Component = await requirePage(pathname, distDir, serverless)
-    let { getStaticProps, getStaticPaths, getServerSideProps } = Component
-
-    getStaticProps = await getStaticProps
-    getStaticPaths = await getStaticPaths
-    getServerSideProps = await getServerSideProps
-    const pageConfig = (await Component.config) || {}
-
-    return {
-      Component,
-      pageConfig,
-      getStaticProps,
-      getStaticPaths,
-      getServerSideProps,
-      ComponentMod: Component,
-    } as LoadComponentsReturnType
-  }
-
-  const DocumentMod = await requirePage('/_document', distDir, serverless)
-  const AppMod = await requirePage('/_app', distDir, serverless)
-  const ComponentMod = await requirePage(pathname, distDir, serverless)
+  const DocumentMod = await requirePage('/_document', distDir)
+  const AppMod = await requirePage('/_app', distDir)
+  const ComponentMod = await requirePage(pathname, distDir)
 
   const [
     buildManifest,

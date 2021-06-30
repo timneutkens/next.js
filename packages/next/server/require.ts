@@ -3,7 +3,6 @@ import { join } from 'path'
 import {
   PAGES_MANIFEST,
   SERVER_DIRECTORY,
-  SERVERLESS_DIRECTORY,
   FONT_MANIFEST,
 } from '../shared/lib/constants'
 import { normalizePagePath, denormalizePagePath } from './normalize-page-path'
@@ -19,14 +18,9 @@ export function pageNotFoundError(page: string): Error {
 export function getPagePath(
   page: string,
   distDir: string,
-  serverless: boolean,
-  dev?: boolean,
   locales?: string[]
 ): string {
-  const serverBuildPath = join(
-    distDir,
-    serverless && !dev ? SERVERLESS_DIRECTORY : SERVER_DIRECTORY
-  )
+  const serverBuildPath = join(distDir, SERVER_DIRECTORY)
   const pagesManifest = require(join(
     serverBuildPath,
     PAGES_MANIFEST
@@ -56,23 +50,16 @@ export function getPagePath(
   return join(serverBuildPath, pagePath)
 }
 
-export function requirePage(
-  page: string,
-  distDir: string,
-  serverless: boolean
-): any {
-  const pagePath = getPagePath(page, distDir, serverless)
+export function requirePage(page: string, distDir: string): any {
+  const pagePath = getPagePath(page, distDir)
   if (pagePath.endsWith('.html')) {
     return promises.readFile(pagePath, 'utf8')
   }
   return require(pagePath)
 }
 
-export function requireFontManifest(distDir: string, serverless: boolean) {
-  const serverBuildPath = join(
-    distDir,
-    serverless ? SERVERLESS_DIRECTORY : SERVER_DIRECTORY
-  )
+export function requireFontManifest(distDir: string) {
+  const serverBuildPath = join(distDir, SERVER_DIRECTORY)
   const fontManifest = require(join(serverBuildPath, FONT_MANIFEST))
   return fontManifest
 }

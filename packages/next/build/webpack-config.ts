@@ -23,7 +23,6 @@ import {
   CLIENT_STATIC_FILES_RUNTIME_REACT_REFRESH,
   CLIENT_STATIC_FILES_RUNTIME_WEBPACK,
   REACT_LOADABLE_MANIFEST,
-  SERVERLESS_DIRECTORY,
   SERVER_DIRECTORY,
 } from '../shared/lib/constants'
 import { execOnce } from '../shared/lib/utils'
@@ -43,7 +42,6 @@ import NextJsSSRModuleCachePlugin from './webpack/plugins/nextjs-ssr-module-cach
 import PagesManifestPlugin from './webpack/plugins/pages-manifest-plugin'
 import { ProfilingPlugin } from './webpack/plugins/profiling-plugin'
 import { ReactLoadablePlugin } from './webpack/plugins/react-loadable-plugin'
-import { ServerlessPlugin } from './webpack/plugins/serverless-plugin'
 import WebpackConformancePlugin, {
   DuplicatePolyfillsConformanceCheck,
   GranularChunksConformanceCheck,
@@ -316,12 +314,7 @@ export default async function getBaseWebpackConfig(
     .split(process.platform === 'win32' ? ';' : ':')
     .filter((p) => !!p)
 
-  const isServerless = target === 'serverless'
-  const isServerlessTrace = target === 'experimental-serverless-trace'
-  // Intentionally not using isTargetLikeServerless helper
-  const isLikeServerless = isServerless || isServerlessTrace
-
-  const outputDir = isLikeServerless ? SERVERLESS_DIRECTORY : SERVER_DIRECTORY
+  const outputDir = SERVER_DIRECTORY
   const outputPath = path.join(distDir, isServer ? outputDir : '')
   const totalPages = Object.keys(entrypoints).length
   const clientEntries = !isServer
@@ -797,8 +790,7 @@ export default async function getBaseWebpackConfig(
         // bundles in case a user imported types and it wasn't removed
         // TODO: should we warn/error for this instead?
         ['next']
-      : !isServerless
-      ? [
+      : [
           isWebpack5
             ? ({
                 context,
@@ -831,15 +823,6 @@ export default async function getBaseWebpackConfig(
                       )
                     )
                 ).then((result) => callback(undefined, result), callback),
-        ]
-      : [
-          // When the 'serverless' target is used all node_modules will be compiled into the output bundles
-          // So that the 'serverless' bundles have 0 runtime dependencies
-          'next/dist/compiled/@ampproject/toolbox-optimizer', // except this one
-
-          // Mark this as external if not enabled so it doesn't cause a
-          // webpack error from being missing
-          ...(config.experimental.optimizeCss ? [] : ['critters']),
         ],
     optimization: {
       // Webpack 5 uses a new property for the same functionality
@@ -859,7 +842,7 @@ export default async function getBaseWebpackConfig(
           : false
         : splitChunksConfig,
       runtimeChunk: isServer
-        ? isWebpack5 && !isLikeServerless
+        ? isWebpack5
           ? { name: 'webpack-runtime' }
           : undefined
         : { name: CLIENT_STATIC_FILES_RUNTIME_WEBPACK },
@@ -977,7 +960,6 @@ export default async function getBaseWebpackConfig(
         'next-babel-loader',
         'next-client-pages-loader',
         'next-image-loader',
-        'next-serverless-loader',
         'noop-loader',
         'next-style-loader',
       ].reduce((alias, loader) => {
@@ -1190,9 +1172,7 @@ export default async function getBaseWebpackConfig(
           resourceRegExp: /react-is/,
           contextRegExp: /next[\\/]dist[\\/]/,
         }),
-      isServerless && isServer && new ServerlessPlugin(),
-      isServer &&
-        new PagesManifestPlugin({ serverless: isLikeServerless, dev }),
+      isServer && new PagesManifestPlugin({ dev }),
       !isWebpack5 &&
         target === 'server' &&
         isServer &&
@@ -1220,9 +1200,7 @@ export default async function getBaseWebpackConfig(
           } = require('./webpack/plugins/font-stylesheet-gathering-plugin') as {
             FontStylesheetGatheringPlugin: typeof import('./webpack/plugins/font-stylesheet-gathering-plugin').FontStylesheetGatheringPlugin
           }
-          return new FontStylesheetGatheringPlugin({
-            isLikeServerless,
-          })
+          return new FontStylesheetGatheringPlugin()
         })(),
       config.experimental.conformance &&
         !isWebpack5 &&

@@ -72,7 +72,6 @@ export interface PageInfo {
 export async function printTreeView(
   list: readonly string[],
   pageInfos: Map<string, PageInfo>,
-  serverless: boolean,
   {
     distPath,
     buildId,
@@ -273,7 +272,7 @@ export async function printTreeView(
       [
         [
           'λ',
-          serverless ? '(Lambda)' : '(Server)',
+          '(Server)',
           `server-side renders at runtime (uses ${chalk.cyan(
             'getInitialProps'
           )} or ${chalk.cyan('getServerSideProps')})`,
@@ -746,7 +745,6 @@ export async function buildStaticPaths(
 export async function isPageStatic(
   page: string,
   distDir: string,
-  serverless: boolean,
   runtimeEnvConfig: any,
   locales?: string[],
   defaultLocale?: string,
@@ -766,7 +764,7 @@ export async function isPageStatic(
   return isPageStaticSpan.traceAsyncFn(async () => {
     try {
       require('../shared/lib/runtime-config').setConfig(runtimeEnvConfig)
-      const components = await loadComponents(distDir, page, serverless)
+      const components = await loadComponents(distDir, page)
       const mod = components.ComponentMod
       const Comp = mod.default || mod
 
@@ -876,13 +874,12 @@ export async function isPageStatic(
 export async function hasCustomGetInitialProps(
   page: string,
   distDir: string,
-  isLikeServerless: boolean,
   runtimeEnvConfig: any,
   checkingApp: boolean
 ): Promise<boolean> {
   require('../shared/lib/runtime-config').setConfig(runtimeEnvConfig)
 
-  const components = await loadComponents(distDir, page, isLikeServerless)
+  const components = await loadComponents(distDir, page)
   let mod = components.ComponentMod
 
   if (checkingApp) {
@@ -897,11 +894,10 @@ export async function hasCustomGetInitialProps(
 export async function getNamedExports(
   page: string,
   distDir: string,
-  isLikeServerless: boolean,
   runtimeEnvConfig: any
 ): Promise<Array<string>> {
   require('../shared/lib/runtime-config').setConfig(runtimeEnvConfig)
-  const components = await loadComponents(distDir, page, isLikeServerless)
+  const components = await loadComponents(distDir, page)
   let mod = components.ComponentMod
 
   return Object.keys(mod)

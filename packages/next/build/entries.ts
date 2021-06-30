@@ -3,11 +3,9 @@ import { posix, join } from 'path'
 import { stringify } from 'querystring'
 import { API_ROUTE, DOT_NEXT_ALIAS, PAGES_DIR_ALIAS } from '../lib/constants'
 import { __ApiPreviewProps } from '../server/api-utils'
-import { isTargetLikeServerless } from '../server/config'
 import { normalizePagePath } from '../server/normalize-page-path'
 import { warn } from './output/log'
 import { ClientPagesLoaderOptions } from './webpack/loaders/next-client-pages-loader'
-import { ServerlessLoaderQuery } from './webpack/loaders/next-serverless-loader'
 import { LoadedEnvFiles } from '@next/env'
 import { NextConfig } from '../server/config'
 
@@ -69,44 +67,10 @@ type Entrypoints = {
 
 export function createEntrypoints(
   pages: PagesMapping,
-  target: 'server' | 'serverless' | 'experimental-serverless-trace',
-  buildId: string,
-  previewMode: __ApiPreviewProps,
-  config: NextConfig,
-  loadedEnvFiles: LoadedEnvFiles
+  target: 'server'
 ): Entrypoints {
   const client: WebpackEntrypoints = {}
   const server: WebpackEntrypoints = {}
-
-  const hasRuntimeConfig =
-    Object.keys(config.publicRuntimeConfig).length > 0 ||
-    Object.keys(config.serverRuntimeConfig).length > 0
-
-  const defaultServerlessOptions = {
-    absoluteAppPath: pages['/_app'],
-    absoluteDocumentPath: pages['/_document'],
-    absoluteErrorPath: pages['/_error'],
-    absolute404Path: pages['/404'] || '',
-    distDir: DOT_NEXT_ALIAS,
-    buildId,
-    assetPrefix: config.assetPrefix,
-    generateEtags: config.generateEtags,
-    poweredByHeader: config.poweredByHeader,
-    canonicalBase: config.amp.canonicalBase,
-    basePath: config.basePath,
-    runtimeConfig: hasRuntimeConfig
-      ? JSON.stringify({
-          publicRuntimeConfig: config.publicRuntimeConfig,
-          serverRuntimeConfig: config.serverRuntimeConfig,
-        })
-      : '',
-    previewProps: JSON.stringify(previewMode),
-    // base64 encode to make sure contents don't break webpack URL loading
-    loadedEnvFiles: Buffer.from(JSON.stringify(loadedEnvFiles)).toString(
-      'base64'
-    ),
-    i18n: config.i18n ? JSON.stringify(config.i18n) : '',
-  }
 
   Object.keys(pages).forEach((page) => {
     const absolutePagePath = pages[page]
@@ -116,28 +80,8 @@ export function createEntrypoints(
     const clientBundlePath = posix.join('pages', bundleFile)
     const serverBundlePath = posix.join('pages', bundleFile)
 
-    const isLikeServerless = isTargetLikeServerless(target)
-
-    if (isApiRoute && isLikeServerless) {
-      const serverlessLoaderOptions: ServerlessLoaderQuery = {
-        page,
-        absolutePagePath,
-        ...defaultServerlessOptions,
-      }
-      server[serverBundlePath] = `next-serverless-loader?${stringify(
-        serverlessLoaderOptions
-      )}!`
-    } else if (isApiRoute || target === 'server') {
+    if (isApiRoute || target === 'server') {
       server[serverBundlePath] = [absolutePagePath]
-    } else if (isLikeServerless && page !== '/_app' && page !== '/_document') {
-      const serverlessLoaderOptions: ServerlessLoaderQuery = {
-        page,
-        absolutePagePath,
-        ...defaultServerlessOptions,
-      }
-      server[serverBundlePath] = `next-serverless-loader?${stringify(
-        serverlessLoaderOptions
-      )}!`
     }
 
     if (page === '/_document') {

@@ -578,7 +578,6 @@ export default class DevServer extends Server {
       const paths = await this.staticPathsWorker.loadStaticPaths(
         this.distDir,
         pathname,
-        !this.renderOpts.dev && this._isLikeServerless,
         {
           publicRuntimeConfig,
           serverRuntimeConfig,

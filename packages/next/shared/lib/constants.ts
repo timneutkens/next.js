@@ -14,7 +14,6 @@ export const DEV_CLIENT_PAGES_MANIFEST = '_devPagesManifest.json'
 export const REACT_LOADABLE_MANIFEST = 'react-loadable-manifest.json'
 export const FONT_MANIFEST = 'font-manifest.json'
 export const SERVER_DIRECTORY = 'server'
-export const SERVERLESS_DIRECTORY = 'serverless'
 export const CONFIG_FILE = 'next.config.js'
 export const BUILD_ID_FILE = 'BUILD_ID'
 export const BLOCKED_PAGES = ['/_document', '/_app']

@@ -12,7 +12,6 @@ let workerWasUsed = false
 export async function loadStaticPaths(
   distDir: string,
   pathname: string,
-  serverless: boolean,
   config: RuntimeConfig,
   locales?: string[],
   defaultLocale?: string
@@ -26,7 +25,7 @@ export async function loadStaticPaths(
   // update work memory runtime-config
   require('../../shared/lib/runtime-config').setConfig(config)
 
-  const components = await loadComponents(distDir, pathname, serverless)
+  const components = await loadComponents(distDir, pathname)
 
   if (!components.getStaticPaths) {
     // we shouldn't get to this point since the worker should
