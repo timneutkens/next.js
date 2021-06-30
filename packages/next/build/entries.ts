@@ -65,10 +65,7 @@ type Entrypoints = {
   server: WebpackEntrypoints
 }
 
-export function createEntrypoints(
-  pages: PagesMapping,
-  target: 'server'
-): Entrypoints {
+export function createEntrypoints(pages: PagesMapping): Entrypoints {
   const client: WebpackEntrypoints = {}
   const server: WebpackEntrypoints = {}
 
@@ -80,7 +77,7 @@ export function createEntrypoints(
     const clientBundlePath = posix.join('pages', bundleFile)
     const serverBundlePath = posix.join('pages', bundleFile)
 
-    if (isApiRoute || target === 'server') {
+    if (isApiRoute) {
       server[serverBundlePath] = [absolutePagePath]
     }
 

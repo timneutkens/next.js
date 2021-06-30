@@ -207,7 +207,6 @@ export default async function getBaseWebpackConfig(
     dev = false,
     isServer = false,
     pagesDir,
-    target = 'server',
     reactProductionProfiling = false,
     entrypoints,
     rewrites,
@@ -218,7 +217,6 @@ export default async function getBaseWebpackConfig(
     dev?: boolean
     isServer?: boolean
     pagesDir: string
-    target?: string
     reactProductionProfiling?: boolean
     entrypoints: WebpackEntrypoints
     rewrites: CustomRoutes['rewrites']
@@ -1215,7 +1213,6 @@ export default async function getBaseWebpackConfig(
     excludeDefaultMomentLocales: config.excludeDefaultMomentLocales,
     assetPrefix: config.assetPrefix,
     disableOptimizedLoading: config.experimental.disableOptimizedLoading,
-    target,
     reactProductionProfiling,
     webpack: !!config.webpack,
     hasRewrites,

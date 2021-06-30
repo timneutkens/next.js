@@ -121,14 +121,13 @@ export default async function build(
 
   return nextBuildSpan.traceAsyncFn(async () => {
     // attempt to load global env values so they are available in next.config.js
-    const { loadedEnvFiles } = nextBuildSpan
+    nextBuildSpan
       .traceChild('load-dotenv')
       .traceFn(() => loadEnvConfig(dir, false, Log))
 
     const config: NextConfig = await nextBuildSpan
       .traceChild('load-next-config')
       .traceAsyncFn(() => loadConfig(PHASE_PRODUCTION_BUILD, dir, conf))
-    const { target } = config
     const buildId: string = await nextBuildSpan
       .traceChild('generate-buildid')
       .traceAsyncFn(() => generateBuildId(config.generateBuildId, nanoid))
@@ -254,16 +253,7 @@ export default async function build(
       .traceFn(() => createPagesMapping(pagePaths, config.pageExtensions))
     const entrypoints = nextBuildSpan
       .traceChild('create-entrypoints')
-      .traceFn(() =>
-        createEntrypoints(
-          mappedPages,
-          target,
-          buildId,
-          previewProps,
-          config,
-          loadedEnvFiles
-        )
-      )
+      .traceFn(() => createEntrypoints(mappedPages))
     const pageKeys = Object.keys(mappedPages)
     const conflictingPublicFiles: string[] = []
     const hasCustomErrorPage: boolean = mappedPages['/_error'].startsWith(
@@ -508,7 +498,6 @@ export default async function build(
             reactProductionProfiling,
             isServer: false,
             config,
-            target,
             pagesDir,
             entrypoints: entrypoints.client,
             rewrites,
@@ -518,7 +507,6 @@ export default async function build(
             reactProductionProfiling,
             isServer: true,
             config,
-            target,
             pagesDir,
             entrypoints: entrypoints.server,
             rewrites,

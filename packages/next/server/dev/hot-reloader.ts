@@ -265,14 +265,7 @@ export default class HotReloader {
       pagePaths.filter((i) => i !== null) as string[],
       this.config.pageExtensions
     )
-    const entrypoints = createEntrypoints(
-      pages,
-      'server',
-      this.buildId,
-      this.previewProps,
-      this.config,
-      []
-    )
+    const entrypoints = createEntrypoints(pages)
 
     return Promise.all([
       getBaseWebpackConfig(this.dir, {
@@ -311,17 +304,10 @@ export default class HotReloader {
         fallback: [],
       },
       isDevFallback: true,
-      entrypoints: createEntrypoints(
-        {
-          '/_app': 'next/dist/pages/_app',
-          '/_error': 'next/dist/pages/_error',
-        },
-        'server',
-        this.buildId,
-        this.previewProps,
-        this.config,
-        []
-      ).client,
+      entrypoints: createEntrypoints({
+        '/_app': 'next/dist/pages/_app',
+        '/_error': 'next/dist/pages/_error',
+      }).client,
     })
     const fallbackCompiler = webpack(fallbackConfig)
 
