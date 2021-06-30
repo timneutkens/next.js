@@ -843,7 +843,6 @@ export default async function getBaseWebpackConfig(
         '**/.git/**',
         '**/node_modules/**',
         '**/.next/**',
-        // can be removed after https://github.com/paulmillr/chokidar/issues/955 is released
         emacsLockfilePattern,
       ],
     },
