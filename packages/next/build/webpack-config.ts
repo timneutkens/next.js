@@ -893,7 +893,6 @@ export default async function getBaseWebpackConfig(
       alias: [
         'emit-file-loader',
         'error-loader',
-        'next-babel-loader',
         'next-client-pages-loader',
         'next-image-loader',
         'noop-loader',
